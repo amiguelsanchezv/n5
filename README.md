@@ -29,3 +29,13 @@
 ![image](https://github.com/amiguelsanchezv/n5/assets/104021993/8c32b99e-ab46-4e97-ab99-1e71b1ceee5d)
 
 ![image](https://github.com/amiguelsanchezv/n5/assets/104021993/426b09fb-a259-4c82-9942-50ab240f2f65)
+
+.\kafka\bin\windows\zookeeper-server-start.bat .\kafka\config\zookeeper.properties
+.\kafka\bin\windows\kafka-server-start.bat .\kafka\config\server.properties
+.\kafka\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --from-beginning --topic n5kafka
+.\bin\elasticsearch.bat
+
+delete from PermissionTypes;
+delete from Permissions;
+DBCC CHECKIDENT (PermissionTypes, RESEED, 0);
+DBCC CHECKIDENT (Permissions, RESEED, 0);
