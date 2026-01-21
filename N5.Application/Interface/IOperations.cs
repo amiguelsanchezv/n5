@@ -11,6 +11,6 @@ namespace N5.Application
         Task<ICollection<PermissionType>> GetPermissionTypes(IMediator mediator);
         Task<Permission> AddPermission(IMediator mediator, Permission permission);
         Task<Permission> ModifyPermission(IMediator mediator, Permission permission);
-        Task<PermissionType> AddPermissioType(IMediator mediator, PermissionType permissionType);
+        Task<PermissionType> AddPermissionType(IMediator mediator, PermissionType permissionType);
     }
 }

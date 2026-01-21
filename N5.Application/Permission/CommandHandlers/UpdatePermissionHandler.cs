@@ -15,7 +15,7 @@ namespace N5.Application
         }
         public async Task<Permission> Handle(UpdatePermission request, CancellationToken cancellationToken)
         {
-            return await _permissionRepository.UpdatePermission(request.Id, request.TipoPermiso);
+            return await _permissionRepository.UpdatePermission(request.Id, request.PermissionType);
         }
     }
 }

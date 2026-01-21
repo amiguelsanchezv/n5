@@ -27,7 +27,7 @@ namespace N5.Infrastructure
             var permissionTypes = await mediator.Send(new GetAllPermissionTypes());
             Parallel.ForEach(permissions, p =>
             {
-                permissionsResponse.Add(new PermissionResponse() { Id = p.Id, NombreEmpleado = p.NombreEmpleado, ApellidoEmpleado = p.NombreEmpleado, FechaPermiso = p.FechaPermiso, TipoPermiso = p.TipoPermiso, Permiso = permissionTypes.FirstOrDefault(pt => pt.Id.Equals(p.TipoPermiso)).Descripcion });
+                permissionsResponse.Add(new PermissionResponse() { Id = p.Id, EmployeeName = p.EmployeeName, EmployeeLastName = p.EmployeeLastName, PermissionDate = p.PermissionDate, PermissionType = p.PermissionType, Permission = permissionTypes.FirstOrDefault(pt => pt.Id.Equals(p.PermissionType)).Description });
             });
 
             if (permissions.Count > 0)
@@ -39,38 +39,40 @@ namespace N5.Infrastructure
 
         public async Task<ICollection<PermissionType>> GetPermissionTypes(IMediator mediator)
         {
-            return await mediator.Send(new GetAllPermissionTypes()); ;
+            return await mediator.Send(new GetAllPermissionTypes());
         }
 
         public async Task<Permission> AddPermission(IMediator mediator, Permission permission)
         {
             await _kafkaService.WriteKafka("request");
             await _elasticSearchService.CheckIndex();
-            var permissionType = await mediator.Send(new GetPermissionTypeById { Id = permission.TipoPermiso });
+            var permissionType = await mediator.Send(new GetPermissionTypeById { Id = permission.PermissionType });
             if (permissionType == null)
             {
-                throw new Exception("El tipo de permiso no está parametrizado.", new Exception("No se ha creado el tipo de permiso."));
+                throw new Exception("Permission type is not parameterized.", new Exception("Permission type has not been created."));
             }
-            permission = await mediator.Send(new CreatePermission { NombreEmpleado = permission.NombreEmpleado, ApellidoEmpleado = permission.ApellidoEmpleado, TipoPermiso = permission.TipoPermiso, FechaPermiso = permission.FechaPermiso });
+            permission = await mediator.Send(new CreatePermission { EmployeeName = permission.EmployeeName, EmployeeLastName = permission.EmployeeLastName, PermissionType = permission.PermissionType, PermissionDate = permission.PermissionDate });
             await _elasticSearchService.InsertDocument(permission);
             return permission;
         }
+
         public async Task<Permission> ModifyPermission(IMediator mediator, Permission permission)
         {
             await _kafkaService.WriteKafka("modify");
             await _elasticSearchService.CheckIndex();
-            var permissionType = await mediator.Send(new GetPermissionTypeById { Id = permission.TipoPermiso });
+            var permissionType = await mediator.Send(new GetPermissionTypeById { Id = permission.PermissionType });
             if (permissionType == null)
             {
-                throw new Exception("El tipo de permiso no está parametrizado.", new Exception("No se ha creado el tipo de permiso."));
+                throw new Exception("Permission type is not parameterized.", new Exception("Permission type has not been created."));
             }
-            permission = await mediator.Send(new UpdatePermission { Id = permission.Id, TipoPermiso = permission.TipoPermiso, FechaPermiso = permission.FechaPermiso });
+            permission = await mediator.Send(new UpdatePermission { Id = permission.Id, PermissionType = permission.PermissionType, PermissionDate = permission.PermissionDate });
             await _elasticSearchService.InsertDocument(permission);
             return permission;
         }
-        public async Task<PermissionType> AddPermissioType(IMediator mediator, PermissionType permissionType)
+
+        public async Task<PermissionType> AddPermissionType(IMediator mediator, PermissionType permissionType)
         {
-            permissionType = await mediator.Send(new CreatePermissionType { Descripcion = permissionType.Descripcion });
+            permissionType = await mediator.Send(new CreatePermissionType { Description = permissionType.Description });
             return permissionType;
         }
     }

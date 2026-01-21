@@ -17,10 +17,10 @@ namespace N5.Application
         {
             return await _permissionRepository.AddPermission(new Permission()
             {
-                NombreEmpleado = request.NombreEmpleado,
-                ApellidoEmpleado = request.ApellidoEmpleado,
-                TipoPermiso = request.TipoPermiso,
-                FechaPermiso = request.FechaPermiso
+                EmployeeName = request.EmployeeName,
+                EmployeeLastName = request.EmployeeLastName,
+                PermissionType = request.PermissionType,
+                PermissionDate = request.PermissionDate
             });
         }
     }

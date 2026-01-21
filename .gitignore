@@ -147,3 +147,5 @@ FakesAssemblies/
 _Pvt_Extensions
 .paket/paket.exe
 .fake/
+cleancompiled.ps1
+global.json

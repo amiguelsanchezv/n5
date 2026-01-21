@@ -1,18 +1,19 @@
-﻿using Nest;
+﻿using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Mapping;
 
 namespace N5.Domain
 {
     public static class Mapping
     {
-        public static CreateIndexDescriptor PermissionsMapping(this CreateIndexDescriptor descriptor)
+        public static TypeMappingDescriptor<Permission> PermissionsMapping(this TypeMappingDescriptor<Permission> descriptor)
         {
-            return descriptor.Map<Permission>(p => p.Properties(pp => pp
-                .Keyword(k => k.Name(p => p.Id))
-                .Text(t => t.Name(p => p.NombreEmpleado))
-                .Text(t => t.Name(p => p.ApellidoEmpleado))
-                .Number(n => n.Name(p => p.TipoPermiso))
-                .Date(d => d.Name(p => p.FechaPermiso))
-            ));
+            return descriptor
+                .Properties(properties => properties
+                    .Keyword("Id")
+                    .Text("EmployeeName")
+                    .Text("EmployeeLastName")
+                    .Date("PermissionDate")
+                );
         }
     }
 }

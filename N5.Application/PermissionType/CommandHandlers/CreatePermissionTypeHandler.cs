@@ -17,7 +17,7 @@ namespace N5.Application
         {
             return await _permissionTypeRepository.AddPermissionType(new PermissionType()
             {
-                Descripcion = request.Descripcion
+                Description = request.Description
             });
         }
     }

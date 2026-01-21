@@ -18,7 +18,7 @@ namespace N5.Infrastructure
 
         public async Task<PermissionType> AddPermissionType(PermissionType permissionType)
         {
-            var _permissionType = await GetPermissionTypeByDescription(permissionType.Descripcion);
+            var _permissionType = await GetPermissionTypeByDescription(permissionType.Description);
             if (_permissionType != null)
             {
                 return _permissionType;
@@ -43,7 +43,7 @@ namespace N5.Infrastructure
 
         public async Task<PermissionType> GetPermissionTypeByDescription(string description)
         {
-            return await _context.PermissionType.FirstOrDefaultAsync(p => p.Descripcion == description);
+            return await _context.PermissionType.FirstOrDefaultAsync(p => p.Description == description);
         }
 
         public async Task<PermissionType> GetPermissionTypeById(int id)
@@ -54,7 +54,7 @@ namespace N5.Infrastructure
         public async Task<PermissionType> UpdatePermissionType(int id, string description)
         {
             var PermissionType = await _context.PermissionType.FirstOrDefaultAsync(p => p.Id == id);
-            PermissionType.Descripcion = description;
+            PermissionType.Description = description;
             await _context.SaveChangesAsync();
             return await _context.PermissionType.FirstOrDefaultAsync(p => p.Id == id);
         }

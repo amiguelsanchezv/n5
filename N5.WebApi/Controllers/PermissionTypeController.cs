@@ -27,7 +27,7 @@ namespace N5.WebApi.Controllers
         {
             try
             {
-                return Ok(await _operations.AddPermissioType(_mediator, permissionType));
+                return Ok(await _operations.AddPermissionType(_mediator, permissionType));
             }
             catch (Exception e)
             {

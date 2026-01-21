@@ -44,7 +44,7 @@ namespace N5.Infrastructure
         public async Task<Permission> UpdatePermission(int id, int permissionType)
         {
             var Permission = await _context.Permission.FirstOrDefaultAsync(p => p.Id == id);
-            Permission.TipoPermiso = permissionType;
+            Permission.PermissionType = permissionType;
             await _context.SaveChangesAsync();
             return await _context.Permission.FirstOrDefaultAsync(p => p.Id == id);
         }

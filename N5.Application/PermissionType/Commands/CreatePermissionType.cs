@@ -5,6 +5,6 @@ namespace N5.Application
 {
     public class CreatePermissionType : IRequest<PermissionType>
     {
-        public string Descripcion { get; set; }
+        public string Description { get; set; }
     }
 }
