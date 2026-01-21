@@ -517,7 +517,7 @@ docker compose up -d webapi frontend
 docker compose down
 ```
 
-**Stop and remove volumes (⚠️ This will delete all data):**
+**Stop and remove volumes (This will delete all data):**
 ```bash
 docker compose down -v
 ```
@@ -816,18 +816,6 @@ N5/
 - **React Router 7** - Client-side routing
 - **Axios** - HTTP client for API requests
 - **Nginx** - Web server for production builds (Docker)
-
-## Screenshots
-
-![image](https://github.com/amiguelsanchezv/n5/assets/104021993/5e9e5ff5-a2e6-4771-826e-bd6945c97268)
-
-![image](https://github.com/amiguelsanchezv/n5/assets/104021993/f1d28e86-a089-46e6-a558-807b297bfcb5)
-
-![image](https://github.com/amiguelsanchezv/n5/assets/104021993/21b75738-89a1-4525-91c1-d5aeb94f3fbb)
-
-![image](https://github.com/amiguelsanchezv/n5/assets/104021993/8c32b99e-ab46-4e97-ab99-1e71b1ceee5d)
-
-![image](https://github.com/amiguelsanchezv/n5/assets/104021993/426b09fb-a259-4c82-9942-50ab240f2f65)
 
 ## Verifying Services
 
