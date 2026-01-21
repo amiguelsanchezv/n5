@@ -32,7 +32,10 @@ This application is a **Permission Management System** that allows organizations
   - `GET /api/permissionType` - Retrieve all permission types
   - `POST /api/permissionType` - Create new permission type
 
-**Frontend (React):**
+**Frontend (React + Vite):**
+- Modern React application built with Vite for fast development and optimized builds
+- Material-UI components for a polished user interface
+- React Router for navigation between pages (Get, Create, Modify)
 - User interface for managing permissions
 - Consumes the REST API endpoints
 - Displays permission lists, forms for creating/editing permissions
@@ -144,8 +147,8 @@ graph TB
 ## Prerequisites
 
 - .NET 10 SDK
-- Docker (for SQL Server, Elasticsearch, and Kafka)
-- Node.js and npm (for React frontend)
+- Docker (for SQL Server, Elasticsearch, Kafka, and Frontend)
+- Node.js 20+ and npm (for React frontend development)
 
 ## Running SQL Server with Docker
 
@@ -430,7 +433,7 @@ Update `N5.WebApi/appsettings.json`:
 
 ## Complete Docker Compose Setup
 
-The `docker-compose.yml` file includes Elasticsearch and Kafka (using KRaft mode). **Note:** SQL Server is not included as it should be running separately or you may already have an existing SQL Server instance.
+The `docker-compose.yml` file includes Elasticsearch, Kafka (using KRaft mode), Web API, and Frontend services. **Note:** SQL Server is not included as it should be running separately or you may already have an existing SQL Server instance.
 
 ```yaml
 services:
@@ -495,9 +498,18 @@ networks:
 
 ### Starting Services
 
-**Start Elasticsearch and Kafka:**
+**Start all services (Elasticsearch, Kafka, Web API, and Frontend):**
 ```bash
-docker compose up -d
+docker compose up -d --build
+```
+
+**Start only specific services:**
+```bash
+# Start only Elasticsearch and Kafka
+docker compose up -d elasticsearch kafka
+
+# Start Web API and Frontend (after Elasticsearch and Kafka are running)
+docker compose up -d webapi frontend
 ```
 
 **Stop all services:**
@@ -508,6 +520,16 @@ docker compose down
 **Stop and remove volumes (⚠️ This will delete all data):**
 ```bash
 docker compose down -v
+```
+
+**View logs:**
+```bash
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f frontend
+docker compose logs -f webapi
 ```
 
 ### Initial Setup Steps
@@ -527,9 +549,9 @@ docker compose down -v
    - Execute the script `N5.Scripts/N5Database.sql`
    - See the [Database Setup](#database-setup) section for detailed instructions
 
-3. **Start Elasticsearch and Kafka:**
+3. **Start all services:**
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    ```
 
 4. **Wait for services to be ready:**
@@ -539,13 +561,24 @@ docker compose down -v
    
    # Check Kafka
    docker exec -it n5-kafka kafka-topics --list --bootstrap-server localhost:9092
+   
+   # Check Web API
+   curl http://localhost:8080/swagger
+   
+   # Check Frontend
+   curl http://localhost:3000
    ```
 
 5. **Verify all services are running:**
    ```bash
    docker ps
    ```
-   You should see: `n5-elasticsearch` and `n5-kafka` (plus your SQL Server container if running in Docker)
+   You should see: `n5-elasticsearch`, `n5-kafka`, `n5-webapi`, and `n5-frontend` (plus your SQL Server container if running in Docker)
+
+6. **Access the application:**
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - API: [http://localhost:8080](http://localhost:8080)
+   - Swagger: [http://localhost:8080/swagger](http://localhost:8080/swagger)
 
 ## Running the Application
 
@@ -614,7 +647,10 @@ docker run -d \
 - **Option B** works if the containers are running on the host machine
 - Replace `StrongPassword123!` with your actual SQL Server password if different
 
-**Or using Docker Compose (add to your `docker-compose.yml`):**
+**Or using Docker Compose (already included in `docker-compose.yml`):**
+
+The `docker-compose.yml` file includes both `webapi` and `frontend` services:
+
 ```yaml
   webapi:
     build:
@@ -628,25 +664,42 @@ docker run -d \
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__N5DB=Server=sqlserver,1433;Database=N5;User Id=sa;Password=StrongPassword123!;TrustServerCertificate=True;
-      - ElasticSearch__Host=http://elasticsearch
+      - ElasticSearch__Host=http://n5-elasticsearch
       - ElasticSearch__Port=9200
       - ElasticSearch__Username=elastic
       - ElasticSearch__Password=migusanv
-      - Kafka__Host=kafka:9092
+      - Kafka__Host=n5-kafka:9092
     depends_on:
       - elasticsearch
       - kafka
     networks:
       - n5-network
+
+  frontend:
+    build:
+      context: ./N5.Presentation
+      dockerfile: Dockerfile
+      args:
+        VITE_API_END_POINT: http://n5-webapi:80
+    container_name: n5-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - webapi
+    networks:
+      - n5-network
 ```
 
 **Note:** 
-- When running in Docker, use container names (e.g., `sqlserver`, `n5-elasticsearch`, `n5-kafka`) when containers are in the same network, or `host.docker.internal` (Windows/Mac only) for services on the host
+- When running in Docker, use container names (e.g., `sqlserver`, `n5-elasticsearch`, `n5-kafka`, `n5-webapi`) when containers are in the same network, or `host.docker.internal` (Windows/Mac only) for services on the host
 - **Important for WSL/Linux:** `host.docker.internal` doesn't work in Linux/WSL. You must connect SQL Server to the same network (`docker network connect n5_n5-network sqlserver`) and use the container name (`sqlserver`) in the connection string
 - The API will be available at `http://localhost:8080` (HTTP) and `https://localhost:8443` (HTTPS)
+- The Frontend will be available at `http://localhost:3000`
 - Swagger UI is available at `http://localhost:8080/swagger` (only in Development mode)
 
-### Frontend (React Application)
+### Frontend (React + Vite Application)
+
+#### Option 1: Running Locally (Development)
 
 1. Navigate to the `N5.Presentation` folder:
    ```bash
@@ -658,14 +711,69 @@ docker run -d \
    npm install
    ```
 
-3. Update the environment configuration file `N5.Presentation/environments/.dev.env` if needed
-
-4. Start the React application:
-   ```bash
-   npm start
+3. Update the environment configuration file `N5.Presentation/environments/.dev.env` if needed:
+   ```env
+   VITE_API_END_POINT=http://localhost:8080
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   
+   For local environment (port 5000):
+   ```bash
+   npm run dev:local
+   ```
+
+5. Open [http://localhost:5173](http://localhost:5173) in your browser
+
+**Note:** Vite uses port `5173` by default (not 3000 like Create React App)
+
+#### Option 2: Running with Docker
+
+**Using Docker Compose (Recommended):**
+
+The `docker-compose.yml` includes a frontend service. To start all services including the frontend:
+
+```bash
+docker compose up -d --build
+```
+
+The frontend will be available at [http://localhost:3000](http://localhost:3000)
+
+**Build the Docker image manually:**
+
+```bash
+# From the N5.Presentation directory
+docker build -t n5-frontend .
+```
+
+**Run the container:**
+
+```bash
+docker run -d \
+  --name n5-frontend \
+  -p 3000:80 \
+  --network n5_n5-network \
+  n5-frontend
+```
+
+**Environment Variables for Docker:**
+
+The frontend Dockerfile accepts a build argument for the API endpoint:
+
+```bash
+docker build \
+  --build-arg VITE_API_END_POINT=http://n5-webapi:80 \
+  -t n5-frontend \
+  ./N5.Presentation
+```
+
+**Note:** 
+- When running in Docker, the frontend connects to the API using the Docker service name (`n5-webapi`)
+- The frontend is served via Nginx in production mode
+- For development, use `npm run dev` locally
 
 ## Database Reset Scripts
 
@@ -693,13 +801,21 @@ N5/
 
 ## Technologies Used
 
+### Backend
 - **.NET 10** - Backend framework
 - **Entity Framework Core 10** - ORM
 - **MediatR** - CQRS pattern implementation
-- **Elasticsearch 8.15** - Search and analytics engine
+- **Elasticsearch 9.2.4** - Search and analytics engine
 - **Apache Kafka** - Event streaming platform
-- **React** - Frontend framework
 - **SQL Server** - Database
+
+### Frontend
+- **React 19** - Frontend framework
+- **Vite 6** - Build tool and development server
+- **Material-UI (MUI) 6** - UI component library
+- **React Router 7** - Client-side routing
+- **Axios** - HTTP client for API requests
+- **Nginx** - Web server for production builds (Docker)
 
 ## Screenshots
 

@@ -5,14 +5,18 @@ import RequestPermission from "./components/requestPermission";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-  console.log(process.env.REACT_APP_API_END_POINT);
   return (
     <div className="App">
       <header className="App-header">
         <div className="main">
           <h2 className="main-header">Permissions</h2>
           <div>
-            <BrowserRouter>
+            <BrowserRouter
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true,
+              }}
+            >
               <div className="max-w-screen-md mx-auto pt-20">
                 <Routes>
                   <Route exact path="/" element={<GetPermission />} />
